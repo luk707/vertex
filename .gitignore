@@ -1,0 +1,4 @@
+iso/
+busyboxrootfs/
+rootfs/
+initramfs.cpio
