@@ -4,3 +4,6 @@
 [submodule "busybox"]
 	path = busybox
 	url = https://git.busybox.net/busybox/
+[submodule "weston"]
+	path = weston
+	url = https://gitlab.freedesktop.org/wayland/weston
