@@ -1,14 +1,15 @@
-.PHONY: run all clean kernel busybox hello rootfs
+.PHONY: run all clean kernel busybox hello mervin rootfs
 
 all: kernel rootfs
 
 run: kernel rootfs
-	qemu-system-x86_64 -kernel linux/arch/x86/boot/bzImage -initrd initramfs.cpio
+	qemu-system-x86_64 -m 2G -kernel linux/arch/x86/boot/bzImage -initrd initramfs.cpio
 
 clean:
 	rm -f initramfs.cpio
-	rm -rf rootfs
+	rm -rf rootfs busyboxrootfs
 	+$(MAKE) clean -C prog/hello
+	+$(MAKE) clean -C prog/mervin
 
 kernel:
 	cp kernel.config linux/.config
@@ -24,15 +25,20 @@ busybox:
 hello:
 	+$(MAKE) hello -C prog/hello
 
-rootfs: hello
+mervin:
+	+$(MAKE) mervin -C prog/mervin
+
+rootfs: hello mervin
 	if [ ! -d busyboxrootfs ]; then $(MAKE) busybox; fi
 
 	rm -rf rootfs
 	mkdir rootfs
+	./copy_libraries.sh
+	cd rootfs && mkdir dev proc sys
 
 	cp init rootfs/init
 	cp -r busyboxrootfs/* rootfs
 	cp prog/hello/hello rootfs/bin/hello
+	cp prog/mervin/mervin rootfs/bin/mervin
 
-	cd rootfs && mkdir dev proc sys
 	cd rootfs && find . | cpio -o --format=newc > ../initramfs.cpio
